@@ -22,14 +22,12 @@ const handleListen = () => console.log(`Listening on local`);
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
-const handleConnection = (socket) => {
+// on : 어떤 이벤트가 발생했을 때 실행되는 것
+wss.on('connection', (socket) => {
   console.group('Soccket On');
   console.log('listening on ws://localhost:3000');
   console.log('socket:', socket);
   console.groupEnd();
-};
-
-// on : 어떤 이벤트가 발생했을 때 실행되는 것
-wss.on('connection', handleConnection);
+});
 
 server.listen(3000, handleListen);
