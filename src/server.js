@@ -28,17 +28,25 @@ const handleConnectionClose = () => {
   console.groupEnd();
 };
 
+/*
+  fake DB
+  현재 서버에 연결되어있는 소켓들
+*/
+const sockets = [];
+
+const handleOnMessage = (message) => {
+  console.group('onMessage');
+  console.log('get message from browser :', message.toString('utf8'));
+  console.groupEnd();
+  sockets.forEach((socket) => socket.send(message.toString('utf8')));
+};
+
 // on : 어떤 이벤트가 발생했을 때 실행되는 것
 wss.on('connection', (socket) => {
   console.log('Connect to Browser');
+  sockets.push(socket);
   socket.on('close', handleConnectionClose);
-  socket.on('message', (message) => {
-    console.group('onMessage');
-    console.log('get message from browser :', message.toString('utf8'));
-    console.groupEnd();
-    socket.send(message.toString('utf8'));
-  });
-  socket.send('hello'); // socket으로 데이터를 보내주는 로직
+  socket.on('message', handleOnMessage);
 });
 
 server.listen(3000, handleListen);
