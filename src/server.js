@@ -14,7 +14,7 @@ app.use('/public', express.static(__dirname + '/public'));
 app.get('/', (rep, res) => res.render('home'));
 app.get('/*', (rep, res) => res.redirect('/'));
 
-const handleListen = () => console.log(`Listening on local`);
+const handleListen = () => console.log(`open http web server`);
 
 // 서버가 http, ws 프로토콜을 사용할 수 있게 만듬
 // 두개의 프로토콜이 동일한 포트를 공유
@@ -22,11 +22,22 @@ const handleListen = () => console.log(`Listening on local`);
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
+const handleConnectionClose = () => {
+  console.group('onConnectionClose');
+  console.log('disconnect from browser');
+  console.groupEnd();
+};
+
+const handleOnMessage = (message) => {
+  console.group('onMessage');
+  console.log('get message from browser :', message.toString('utf8'));
+  console.groupEnd();
+};
 // on : 어떤 이벤트가 발생했을 때 실행되는 것
 wss.on('connection', (socket) => {
   console.log('Connect to Browser');
-  socket.on('close', () => console.log('disconnect from browser'));
-  socket.on('message', (message) => console.log(message.toString('utf8')));
+  socket.on('close', handleConnectionClose);
+  socket.on('message', handleOnMessage);
   socket.send('hello'); // socket으로 데이터를 보내주는 로직
 });
 
