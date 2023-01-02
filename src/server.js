@@ -24,10 +24,10 @@ const wss = new WebSocket.Server({ server });
 
 // on : 어떤 이벤트가 발생했을 때 실행되는 것
 wss.on('connection', (socket) => {
-  console.group('Soccket On');
-  console.log('listening on ws://localhost:3000');
-  console.log('socket:', socket);
-  console.groupEnd();
+  console.log('Connect to Browser');
+  socket.on('close', () => console.log('disconnect from browser'));
+  socket.on('message', (message) => console.log(message.toString('utf8')));
+  socket.send('hello'); // socket으로 데이터를 보내주는 로직
 });
 
 server.listen(3000, handleListen);
