@@ -34,19 +34,31 @@ const handleConnectionClose = () => {
 */
 const sockets = [];
 
-const handleOnMessage = (message) => {
-  console.group('onMessage');
-  console.log('get message from browser :', message.toString('utf8'));
-  console.groupEnd();
-  sockets.forEach((socket) => socket.send(message.toString('utf8')));
+const unPackMessage = (message) => {
+  return JSON.parse(message);
 };
 
 // on : 어떤 이벤트가 발생했을 때 실행되는 것
 wss.on('connection', (socket) => {
   console.log('Connect to Browser');
   sockets.push(socket);
+  socket['nickname'] = 'guest';
   socket.on('close', handleConnectionClose);
-  socket.on('message', handleOnMessage);
+  socket.on('message', (message) => {
+    const parsed = unPackMessage(message.toString('utf8'));
+    switch (parsed.type) {
+      case 'message':
+        sockets.forEach((aSocket) =>
+          aSocket.send(`${socket.nickname}: ${parsed.payload}`)
+        );
+        break;
+      case 'nickname':
+        socket['nickname'] = parsed.payload;
+        break;
+      default:
+        break;
+    }
+  });
 });
 
 server.listen(3000, handleListen);
