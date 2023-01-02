@@ -1,3 +1,6 @@
+const messageList = document.querySelector('ul');
+const messageForm = document.querySelector('form');
+
 // socket 연결 요청을 보내는 코드
 // window.location.host
 const socket = new WebSocket(`ws://${window.location.host}`);
@@ -20,7 +23,12 @@ socket.addEventListener('close', () => {
   console.log('Connected to Server ❌');
 });
 
-// 메세지 보내는 로직 (FE -> BE)
-setInterval(() => {
-  socket.send('hello server!');
-}, 10000);
+const handleSubmit = (e) => {
+  e.preventDefault();
+  const input = messageForm.querySelector('input');
+  console.log(input.value);
+  socket.send(input.value);
+  input.value = '';
+};
+
+messageForm.addEventListener('submit', handleSubmit);

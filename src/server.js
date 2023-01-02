@@ -28,16 +28,16 @@ const handleConnectionClose = () => {
   console.groupEnd();
 };
 
-const handleOnMessage = (message) => {
-  console.group('onMessage');
-  console.log('get message from browser :', message.toString('utf8'));
-  console.groupEnd();
-};
 // on : 어떤 이벤트가 발생했을 때 실행되는 것
 wss.on('connection', (socket) => {
   console.log('Connect to Browser');
   socket.on('close', handleConnectionClose);
-  socket.on('message', handleOnMessage);
+  socket.on('message', (message) => {
+    console.group('onMessage');
+    console.log('get message from browser :', message.toString('utf8'));
+    console.groupEnd();
+    socket.send(message.toString('utf8'));
+  });
   socket.send('hello'); // socket으로 데이터를 보내주는 로직
 });
 
