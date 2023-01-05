@@ -1,46 +1,18 @@
-const messageList = document.querySelector('ul');
-const messageForm = document.querySelector('#message');
-const nickForm = document.querySelector('#nick');
+const socket = io(); // client socket 생성
 
-// socket 연결 요청을 보내는 코드
-// window.location.host
-const socket = new WebSocket(`ws://${window.location.host}`);
+const welcome = document.getElementById('welcome');
+const form = welcome.querySelector('form');
+const d = 10;
 
-const makeMessage = (type, payload) => {
-  const msg = { type, payload };
-  return JSON.stringify(msg);
+const handleBackendDone = (msg) => {
+  console.log(`backend say: ${msg}`);
 };
-// 연결이 성사 되었을 때
-socket.addEventListener('open', () => {
-  console.log('Connected to Server ✅');
-});
-
-// 메세지를 받았을 때 - MessageEvent 객체를 받는다.
-socket.addEventListener('message', (message) => {
-  console.group('receive message from server');
-  console.log('MessageEvent:', message);
-  console.groupEnd();
-  const li = document.createElement('li');
-  li.innerText = message.data;
-  messageList.append(li);
-});
-
-// 소켓이 닫혔을 때 - 서버가 오프라인 될 때, 끊겼을 때 등등 ..
-socket.addEventListener('close', () => {
-  console.log('Connected to Server ❌');
-});
-
-const handleSubmit = (e) => {
+const handleRoomSubmit = (e) => {
   e.preventDefault();
-  const input = messageForm.querySelector('input');
-  socket.send(makeMessage('message', input.value));
-  input.value = '';
+  const input = form.querySelector('input');
+  // 채팅방 설정 emit(event, payload, callbackfn)
+  // 서버에서 실행이 완료 되면, front 에서 callbackfn 이 실행됨.
+  socket.emit('room', { payload: input.value }, handleBackendDone);
 };
 
-const handleNickSubmit = (e) => {
-  e.preventDefault();
-  const input = nickForm.querySelector('input');
-  socket.send(makeMessage('nickname', input.value));
-};
-messageForm.addEventListener('submit', handleSubmit);
-nickForm.addEventListener('submit', handleNickSubmit);
+form.addEventListener('submit', handleRoomSubmit);
