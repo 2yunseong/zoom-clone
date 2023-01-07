@@ -21,11 +21,13 @@ const io = SocketIO(httpServer);
 
 // 연결 될 때
 io.on('connection', (socket) => {
-  socket.on('room', (msg, done) => {
-    console.log(msg);
+  socket.on('enter_room', (room, done) => {
+    const roomName = room.payload;
+    socket.join(roomName);
     // 프론트에서 emit에 전달해준 콜백함수가 실행됨
     // 매개변수를 전달해 줄수도 있다! (매개변수는 문자열, 객체 등 모두 지원)
-    done('hello');
+    done(roomName);
+    socket.to(roomName).emit('welcome');
   });
 });
 
