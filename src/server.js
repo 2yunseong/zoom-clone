@@ -21,7 +21,6 @@ const io = SocketIO(httpServer);
 
 // 연결 될 때
 io.on('connection', (socket) => {
-  socket['nickname'] = 'guest';
   socket.on('enter_room', (roomName, done) => {
     socket.join(roomName);
     // 프론트에서 emit에 전달해준 콜백함수가 실행됨
