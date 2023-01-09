@@ -27,12 +27,12 @@ const handleMessageSubmit = (e) => {
   });
 };
 
-const showRoom = (name) => {
+const showRoom = (name, newCount) => {
   welcome.hidden = true;
   room.hidden = false;
   roomName = name;
   const h3 = room.querySelector('h3');
-  h3.innerText = `Room ${roomName}`;
+  h3.innerText = `Room ${roomName} (${newCount})`;
   const msgForm = room.querySelector('#msg');
   msgForm.addEventListener('submit', handleMessageSubmit);
 };
@@ -46,11 +46,15 @@ const addMessage = (msg) => {
 
 form.addEventListener('submit', handleRoomSubmit);
 
-socket.on('welcome', (nickname) => {
+socket.on('welcome', (nickname, newCount) => {
+  const h3 = room.querySelector('h3');
+  h3.innerText = `Room ${roomName} (${newCount})`;
   addMessage(`${nickname} Join.`);
 });
 
-socket.on('bye', (nickname) => {
+socket.on('bye', (nickname, newCount) => {
+  const h3 = room.querySelector('h3');
+  h3.innerText = `Room ${roomName} (${newCount})`;
   addMessage(`${nickname} left.`);
 });
 

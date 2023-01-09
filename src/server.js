@@ -34,24 +34,35 @@ const findPublicRooms = () => {
 
   return publicRooms;
 };
+
+const countUserByRoom = (roomName) => {
+  return io.sockets.adapter.rooms.get(roomName).size;
+};
+
 // 연결 될 때
 io.on('connection', (socket) => {
+  io.sockets.emit('room_change', findPublicRooms());
+
   socket.onAny((event) => {
     console.log(`Event: ${event}`);
   });
+
   socket.on('enter_room', (roomName, done) => {
     socket.join(roomName);
     // 프론트에서 emit에 전달해준 콜백함수가 실행됨
     // 매개변수를 전달해 줄수도 있다! (매개변수는 문자열, 객체 등 모두 지원)
-    done(roomName);
-    socket.to(roomName).emit('welcome', socket.nickname);
+    done(roomName, countUserByRoom(roomName));
+    socket
+      .to(roomName)
+      .emit('welcome', socket.nickname, countUserByRoom(roomName));
     io.sockets.emit('room_change', findPublicRooms());
   });
 
   socket.on('disconnecting', () => {
     const enterRooms = socket.rooms;
     enterRooms.forEach((room) => {
-      socket.to(room).emit('bye', socket.nickname);
+      // 끊기 직전이므로, 자기 자신은 빼주어야 함.
+      socket.to(room).emit('bye', socket.nickname, countUserByRoom(room) - 1);
     });
   });
 
