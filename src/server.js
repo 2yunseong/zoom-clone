@@ -19,14 +19,33 @@ const handleListen = () => console.log(`open http web server`);
 const httpServer = http.createServer(app);
 const io = SocketIO(httpServer);
 
+const findPublicRooms = () => {
+  const {
+    sockets: {
+      adapter: { sids, rooms },
+    },
+  } = io;
+  const publicRooms = [];
+  rooms.forEach((_, key) => {
+    if (sids.get(key) === undefined) {
+      publicRooms.push(key);
+    }
+  });
+
+  return publicRooms;
+};
 // 연결 될 때
 io.on('connection', (socket) => {
+  socket.onAny((event) => {
+    console.log(`Event: ${event}`);
+  });
   socket.on('enter_room', (roomName, done) => {
     socket.join(roomName);
     // 프론트에서 emit에 전달해준 콜백함수가 실행됨
     // 매개변수를 전달해 줄수도 있다! (매개변수는 문자열, 객체 등 모두 지원)
     done(roomName);
     socket.to(roomName).emit('welcome', socket.nickname);
+    io.sockets.emit('room_change', findPublicRooms());
   });
 
   socket.on('disconnecting', () => {
@@ -34,6 +53,10 @@ io.on('connection', (socket) => {
     enterRooms.forEach((room) => {
       socket.to(room).emit('bye', socket.nickname);
     });
+  });
+
+  socket.on('disconnect', () => {
+    io.sockets.emit('room_change', findPublicRooms());
   });
 
   socket.on('new_message', (msg, room, done) => {
