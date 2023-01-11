@@ -23,5 +23,16 @@ html(lang="en")
                 form#msg
                     input(placeholder='message' require, type='text')
                     button Send
+            div#videoCall
+                h3 영상통화 하기
+                video#myFace(autoplay, playsinline width='400' height='400')
+                button#mute Mute
+                button#camera Camera
+                select#cameraSelect
+            div#videoWelcome
+                form
+                    input(placeholder='room name', require, type='text')
+                    button Enter Room
+                
         script(src="/socket.io/socket.io.js") 
         script(src="/public/js/app.js") 

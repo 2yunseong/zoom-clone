@@ -72,3 +72,105 @@ socket.on('room_change', (rooms) => {
     roomList.append(li);
   });
 });
+
+// video
+
+const myFace = document.getElementById('myFace');
+const muteBtn = document.getElementById('mute');
+const cameraBtn = document.getElementById('camera');
+const cameraSelect = document.getElementById('cameraSelect');
+let myStream;
+let videoRoomName;
+
+const videoWelcome = document.getElementById('videoWelcome');
+const videoCall = document.getElementById('videoCall');
+const videoWelcomeForm = videoWelcome.querySelector('form');
+
+videoCall.hidden = true;
+
+const getMedia = async (deviceId) => {
+  const initialConstraints = {
+    audio: true,
+    video: { facingMode: { exact: 'user' } },
+  };
+
+  const cameraConstraints = {
+    audio: true,
+    video: { deviceId: { exact: deviceId } },
+  };
+
+  try {
+    // stream 받기
+    myStream = await navigator.mediaDevices.getUserMedia(
+      deviceId ? cameraConstraints : initialConstraints
+    );
+    // stream 넣기
+    myFace.srcObject = myStream;
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+const getCamera = async () => {
+  try {
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    const cameras = await devices.filter(
+      (device) => device.kind === 'videoinput'
+    );
+    const currentCamera = cameras[0];
+
+    cameras.forEach((camera) => {
+      const cameraOption = document.createElement('option');
+      cameraOption.value = camera.deviceId;
+      cameraOption.innerText = camera.label;
+      if (currentCamera.label == camera.label) {
+        cameraOption.selected = true;
+      }
+      cameraSelect.appendChild(cameraOption);
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const startMedia = () => {
+  videoWelcome.hidden = true;
+  videoCall.hidden = false;
+  getMedia();
+  getCamera();
+};
+
+const handleMuteBtn = () => {
+  myStream.getAudioTracks().forEach((track) => {
+    track.enabled = !track.enabled;
+    muteBtn.innerText = track.enabled ? 'mute' : 'unMute';
+  });
+};
+
+const handleCameraBtn = () => {
+  myStream.getVideoTracks().forEach((track) => {
+    track.enabled = !track.enabled;
+    cameraBtn.innerText = track.enabled ? 'Cam Off' : 'Cam On';
+  });
+};
+
+const handleCameraChange = async () => {
+  await getMedia(cameraSelect.value);
+};
+
+const handleWelcomeSubmit = (e) => {
+  e.preventDefault();
+  const input = videoWelcomeForm.querySelector('input');
+  socket.emit('join_room', input.value, startMedia);
+  input.value = '';
+};
+
+muteBtn.addEventListener('click', handleMuteBtn);
+cameraBtn.addEventListener('click', handleCameraBtn);
+cameraSelect.addEventListener('input', handleCameraChange);
+
+videoWelcomeForm.addEventListener('submit', handleWelcomeSubmit);
+
+socket.on('video_welcome', () => {
+  console.log('someone joined.');
+});
