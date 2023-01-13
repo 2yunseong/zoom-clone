@@ -40,48 +40,68 @@ const countUserByRoom = (roomName) => {
 };
 
 // 연결 될 때
-io.on('connection', (socket) => {
-  io.sockets.emit('room_change', findPublicRooms());
-
-  socket.onAny((event) => {
-    console.log(`Event: ${event}`);
-  });
-
-  socket.on('enter_room', (roomName, done) => {
-    socket.join(roomName);
-    // 프론트에서 emit에 전달해준 콜백함수가 실행됨
-    // 매개변수를 전달해 줄수도 있다! (매개변수는 문자열, 객체 등 모두 지원)
-    done(roomName, countUserByRoom(roomName));
-    socket
-      .to(roomName)
-      .emit('welcome', socket.nickname, countUserByRoom(roomName));
+const onChat = () => {
+  io.on('connection', (socket) => {
     io.sockets.emit('room_change', findPublicRooms());
-  });
 
-  socket.on('disconnecting', () => {
-    const enterRooms = socket.rooms;
-    enterRooms.forEach((room) => {
-      // 끊기 직전이므로, 자기 자신은 빼주어야 함.
-      socket.to(room).emit('bye', socket.nickname, countUserByRoom(room) - 1);
+    socket.onAny((event) => {
+      console.log(`Event: ${event}`);
+    });
+
+    socket.on('enter_room', (roomName, done) => {
+      socket.join(roomName);
+      // 프론트에서 emit에 전달해준 콜백함수가 실행됨
+      // 매개변수를 전달해 줄수도 있다! (매개변수는 문자열, 객체 등 모두 지원)
+      done(roomName, countUserByRoom(roomName));
+      socket
+        .to(roomName)
+        .emit('welcome', socket.nickname, countUserByRoom(roomName));
+      io.sockets.emit('room_change', findPublicRooms());
+    });
+
+    socket.on('disconnecting', () => {
+      const enterRooms = socket.rooms;
+      enterRooms.forEach((room) => {
+        // 끊기 직전이므로, 자기 자신은 빼주어야 함.
+        socket.to(room).emit('bye', socket.nickname, countUserByRoom(room) - 1);
+      });
+    });
+
+    socket.on('disconnect', () => {
+      io.sockets.emit('room_change', findPublicRooms());
+    });
+
+    socket.on('new_message', (msg, room, done) => {
+      socket.to(room).emit('new_message', `${socket.nickname}:${msg}`);
+      done();
+    });
+
+    socket.on('nickname', (nickname) => (socket['nickname'] = nickname));
+  });
+};
+
+const onWebRTC = () => {
+  io.on('connection', (socket) => {
+    socket.onAny((event) => {
+      console.log(`Event: ${event}`);
+    });
+    socket.on('join_room', (roomName) => {
+      socket.join(roomName);
+      socket.to(roomName).emit('video_welcome');
+    });
+    socket.on('offer', (offer, roomName) => {
+      socket.to(roomName).emit('offer', offer);
+    });
+
+    socket.on('answer', (answer, roomName) => {
+      socket.to(roomName).emit('answer', answer);
+    });
+
+    socket.on('ice', (ice, roomName) => {
+      socket.to(roomName).emit('ice', ice);
     });
   });
+};
 
-  socket.on('disconnect', () => {
-    io.sockets.emit('room_change', findPublicRooms());
-  });
-
-  socket.on('new_message', (msg, room, done) => {
-    socket.to(room).emit('new_message', `${socket.nickname}:${msg}`);
-    done();
-  });
-
-  socket.on('nickname', (nickname) => (socket['nickname'] = nickname));
-
-  socket.on('join_room', (roomName, done) => {
-    socket.join(roomName);
-    done();
-    socket.to(roomName).emit('video_welcome');
-  });
-});
-
+onWebRTC();
 httpServer.listen(3000, handleListen);
