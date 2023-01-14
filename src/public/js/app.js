@@ -167,7 +167,19 @@ const startMedia = async () => {
 
 let myPeerConnection;
 const makeConnection = () => {
-  myPeerConnection = new RTCPeerConnection();
+  myPeerConnection = new RTCPeerConnection({
+    iceServers: [
+      {
+        urls: [
+          'stun:stun.l.google.com:19302',
+          'stun:stun.1.google.com:19302',
+          'stun:stun.2.google.com:19302',
+          'stun:stun.3.google.com:19302',
+          'stun:stun.4.google.com:19302',
+        ],
+      },
+    ],
+  });
   myPeerConnection.addEventListener('icecandidate', handleIce);
   myPeerConnection.addEventListener('addstream', handleAddStream);
   myStream
