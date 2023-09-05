@@ -4,35 +4,21 @@ html(lang="en")
         meta(charset="UTF-8")
         meta(http-equiv="X-UA-Compatible", content="IE=edge")
         meta(name="viewport", content="width=device-width, initial-scale=1.0")
+        link(rel='stylesheet' href="/public/style.css")
         title Noom
-        link(rel="stylesheet", href="https://unpkg.com/mvp.css@1.12/mvp.css")
     body 
-        header
-            h1 Noom
         main
-            div#welcome
-                form
-                    input(placeholder='room name', require, type='text')#roomname
-                    input(placeholder="nickname", require, type='text')#nickname
-                    button Enter Room
-                h4 Open Rooms
-                ul
-            div#room
-                h3
-                ul
-                form#msg
-                    input(placeholder='message' require, type='text')
-                    button Send
             div#videoCall
-                h3 영상통화 하기
-                div#myStream
-                    video#myFace(autoplay, playsinline width='400' height='400')
-                    button#mute Mute
-                    button#camera Camera
+                div.videoContainer
+                    div#myStream
+                        video#myFace(autoplay, playsinline width='700px' height='500px')
+                    div#peerStream
+                        video#peerFace(autoplay, playsinline width='700px' height='500px')
+                div.buttonContainer
+                    button#mute Mic Off                       
+                    button#camera Cam Off
                     select#cameraSelect
-                div#peerStream
-                    video#peerFace(autoplay, playsinline width='400' height='400')
-
+                    button#closeBtn Leave Room
             div#videoWelcome
                 form
                     input(placeholder='room name', require, type='text')

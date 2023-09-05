@@ -1,0 +1,91 @@
+body {
+    margin: 0;
+    background-color: #2f3135;
+    color: white;
+}
+button {
+    border: 0;
+}
+
+#myStream {
+    display: flex;
+    flex-direction: column;
+    margin: 10px;
+}
+
+#peerStream {
+    display: flex;
+    flex-direction: column;
+    margin: 10px;
+}
+#chatRoom {
+    color: white;
+}
+#videoCall {
+    height: 100vh;
+    width: 100vw;
+}
+
+.videoContainer {
+    margin: 50px;
+    display: flex;
+    justify-content: center;
+}
+
+#myFace {
+    border-radius: 10px;
+}
+
+#peerFace {
+    border-radius: 10px;
+}
+
+#mute {
+    width: 80px;
+    height: 80px;
+    background-color: white;
+    border-radius: 80px;
+    margin-right: 20px;
+    cursor: pointer;
+}
+
+#camera {
+    width: 80px;
+    height: 80px;
+    background-color: white;
+    border-radius: 80px;
+    margin-right: 20px;
+    cursor: pointer;
+}
+
+#closeBtn {
+    width: 80px;
+    height: 80px;
+    background-color: #d14245;
+    color: white;
+    border-radius: 80px;
+    margin-left: 20px;
+    cursor: pointer;
+}
+
+#mute:hover {
+    background-color: gray;
+}
+
+#camera:hover {
+    background-color: gray
+}
+
+#cameraSelect {
+    height: 80px;
+    border-radius: 100px;
+    padding: 5px;
+}
+
+
+.buttonContainer {
+    display: flex;
+    flex: 1;
+    justify-content: center;
+    align-items: center;
+}
